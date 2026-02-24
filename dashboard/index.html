@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Didgemoods • TikTok Command Center</title>
+    <meta name="description" content="AI-powered TikTok & E-commerce platform for Warren Moodie">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <!-- Ambient & Atmospheric Layers -->
+    <div class="scanlines" aria-hidden="true"></div>
+    <div class="grid-overlay" aria-hidden="true"></div>
+    <div class="ambient-glow" aria-hidden="true"></div>
+
+    <!  -- Header -->
+    <header class="header">
+        <div class="header-brand">
+            <div class="logo-icon">🎵</div>
+            <div class="header-titles">
+                <h1 class="system-title">Didgemoods</h1>
+                <span class="system-subtitle">Earth to Algorithm Command Center</span>
+            </div>
+        </div>
+        <div class="header-status">
+             <! - Feature 7: System Health Diagnostics -->
+            <div class="diagnostics-cluster">
+                <div class="diag-item" title="API Connection Status">
+                    <span class="diag-label">API</span>
+                    <span class="pulse-dot green"></span>
+                </div>
+                <div class="diag-item" title="Server Latency">
+                    <span class="diag-label">LAT</span>
+                    <span class="diag-value">12ms</span>
+                </div>
+                <div class="diag-item" title="Render Load">
+                    <span class="diag-label">GPU</span>
+                    <div class="load-bar"><div class="load-fill" id="gpuLoadFill"></div></div>
+                </div>
+            </div>
+            
+            <a href="https://www.tiktok.com/@didgemoodz" target="_blank" rel="noopener" class="tiktok-link">
+                🎵 @didgemoodz
+            </a>
+            <div class="status-chip" data-status="online">
+                <span class="pulse-dot"></span>
+                <span id="systemStatus">SYSTEM ONLINE</span>
+            </div>
+            <div class="status-chip" data-status="info">
+                <span id="currentTime"></span>
+            </div>
+        </div>
+    </header>
+
+    <!--   Main Dashboard Grid (Expanded) -->
+    <main class="dashboard-grid expanded-grid">
+
+        <!-- Panel 1: Trend Radar & Feature 2: Hashtag Synthesizer 2.0 -->
+        <section class="panel panel-trends animate-delay-1" id="trendPanel">
+            <div class="panel-glass"></div>
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-icon">🔥</span>
+                    <h2>Trend Radar</h2>
+                </div>
+                <button class="btn-refresh" onclick="refreshTrends()" title="Refresh Trends">⟳</button>
+            </div>
+            <div class="panel-body">
+                <div class="trend-tabs">
+                    <button class="tab-btn active" data-tab="sounds" onclick="switchTrendTab('sounds')">🎵 Sounds</button>
+                    <button class="tab-btn" data-tab="hashtags" onclick="switchTrendTab('hashtags')"># Hashtags</button>
+                    <button class="tab-btn" data-tab="ideas" onclick="switchTrendTab('ideas')">💡 Ideas</button>
+                </div>
+                <div class="trend-content" id="trendContent">
+                    <div class="loading-spinner">Scanning trends...</div>
+                </div>
+                
+                <!-- Hashtag Synthesizer 2.0 -->
+                <div class="hashtag-synth-container mt-4">
+                    <h3 class="synth-title">Synthesizer 2.0</h3>
+                    <div class="synth-output" id="hashtagOutput">
+                        #didgeridoo #soundhealing #earthvibes #didgemoods #meditationmusic #naturefrequency #tiktoktrends
+                    </div>
+                    <button class="btn-action w-full mt-2" onclick="copyHashtags()">Copy Viral Tags 📋</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 2: Video Pipeline -->
+        <section class="panel panel-pipeline animate-delay-2" id="pipelinePanel">
+            <div class="panel-glass"></div>
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-icon">🎬</span>
+                    <h2>Video Pipeline</h2>
+                </div>
+                <button class="btn-action glow" onclick="processAllVideos()">⚡ Process All</button>
+            </div>
+            <div class="panel-body">
+                <div class="pipeline-stages">
+                    <div class="stage" data-stage="raw">
+                        <div class="stage-header">
+                            <span class="stage-icon">📥</span>
+                            <span class="stage-label">Raw</span>
+                            <span class="stage-count" id="rawCount">0</span>
+                        </div>
+                        <div class="stage-list" id="rawVideosList"></div>
+                    </div>
+                    <div class="stage-arrow">→</div>
+                    <div class="stage" data-stage="processing">
+                        <div class="stage-header">
+                            <span class="stage-icon hover-glow">⚙️</span>
+                            <span class="stage-label">Processing</span>
+                            <span class="stage-count" id="processingCount">0</span>
+                        </div>
+                        <div class="stage-list" id="processingList"></div>
+                    </div>
+                    <div class="stage-arrow">→</div>
+                    <div class="stage" data-stage="ready">
+                        <div class="stage-header">
+                            <span class="stage-icon">✅</span>
+                            <span class="stage-label">Ready</span>
+                            <span class="stage-count" id="readyCount">0</span>
+                        </div>
+                        <div class="stage-list" id="readyVideosList"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 3: Analytics & Feature 4: Live Engagement Heatmap -->
+        <section class="panel panel-analytics animate-delay-3" id="analyticsPanel">
+            <div class="panel-glass"></div>
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-icon">📊</span>
+                    <h2>Analytics HQ</h2>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value"><span id="totalFollowers" class="counter">8420</span></div>
+                        <div class="stat-label">Followers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value"><span id="totalViews" class="counter">124500</span></div>
+                        <div class="stat-label">Total Views</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value"><span id="engagementRate">8.4%</span></div>
+                        <div class="stat-label">Engagement</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value"><span id="views30d" class="counter">45200</span></div>
+                        <div class="stat-label">Views (30d)</div>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <div class="chart-container">
+                        <canvas id="growthChart"></canvas>
+                    </div>
+                    <!-- Live Engagement Heatmap Overlay Mock -->
+                    <div class="heatmap-overlay" title="Global viewer concentration">
+                        <div class="heat-point hp-1"></div>
+                        <div class="heat-point hp-2"></div>
+                        <div class="heat-point hp-3"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Feature 1: AI Voice Clone Studio -->
+        <section class="panel panel-voice animate-delay-4" id="voicePanel">
+            <div class="panel-glass"></div>
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-icon">🎙️</span>
+                    <h2>AI Voice Studio</h2>
+                </div>
+                <span class="badge">ElevenLabs Active</span>
+            </div>
+            <div class="panel-body">
+                <textarea class="form-input" id="voiceScript" rows="3" placeholder="Enter script for Didgemoods clone..."></textarea>
+                <div class="waveform-visualizer">
+                    <div class="wave bar-1"></div><div class="wave bar-2"></div><div class="wave bar-3"></div>
+                    <div class="wave bar-4"></div><div class="wave bar-5"></div><div class="wave bar-6"></div>
+                    <div class="wave bar-7"></div><div class="wave bar-8"></div><div class="wave bar-9"></div>
+                </div>
+                <button class="btn-action w-full mt-3 glow" onclick="generateVoice()">Generate Didgemoods Audio 🔊</button>
+            </div>
+        </section>
+        
+        <!-- Feature 5: Script & Hook Generator -->
+        <section class="panel panel-script animate-delay-5" id="scriptPanel">
+            <div class="panel-glass"></div>
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-icon">✍️</span>
+                    <h2>Hook Generator</h2>
+                </div>
+            </div>
+            <div class="panel-body">
+                <input type="text" class="form-input" id="topicInput" placeholder="Topic idea (e.g. 'Deep breathing')">
+                <button class="btn-secondary w-full mt-2" onclick="generateScript()">Outline Script ⚡</button>
+                <div class="script-output mt-3" id="scriptOutput">
+                    <!-- Script mock injected here via JS -->
+                    <div class="empty-state">Awaiting Inspiration</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Feature 6: Inspiration Feed -->
+        <section class="panel panel-feed animate-delay-6" id="feedPanel">
+            <div class="panel-glass"></div>
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-icon">👁️</span>
+                    <h2>Inspiration Feed</h2>
+                </div>
+            </div>
+            <div class="panel-body scroller">
+                <div class="feed-item">
+                    <div class="feed-thumb bg-a">🎵</div>
+                    <div class="feed-details">
+                        <strong>@NatureSoundz</strong>
+                        <span class="feed-stat">2M Views</span>
+                    </div>
+                </div>
+                <div class="feed-item">
+                    <div class="feed-thumb bg-b">🌲</div>
+                    <div class="feed-details">
+                        <strong>@EarthFrequency</strong>
+                        <span class="feed-stat">850k Views</span>
+                    </div>
+                </div>
+                 <div class="feed-item">
+                    <div class="feed-thumb bg-c">🧘</div>
+                    <div class="feed-details">
+                        <strong>@BreathWorkDaily</strong>
+                        <span class="feed-stat">400k Views</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 4: Monetization -->
+        <section class="panel panel-monetization animate-delay-7" id="monetizationPanel">
+            <div class="panel-glass"></div>
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-icon">💰</span>
+                    <h2>Monetization</h2>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="revenue-estimate glow-box" id="revenueEstimate">
+                    <div class="revenue-label">Est. Monthly Revenue</div>
+                    <div class="revenue-value" id="monthlyRevenue">$450 - $1,200</div>
+                </div>
+                <div class="milestones mt-4" id="milestonesList">
+                     <!-- Hardcoded for visual mockup -->
+                     <div class="milestone completed">
+                         <span class="m-icon">✅</span> Custom Didge Shop Live
+                     </div>
+                     <div class="milestone pending">
+                         <span class="m-icon">⏳</span> 10K Followers (Creator Fund)
+                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 5: Content Calendar -->
+        <section class="panel panel-calendar animate-delay-8" id="calendarPanel">
+            <div class="panel-glass"></div>
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-icon">📅</span>
+                    <h2>Content Calendar</h2>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="calendar-layout">
+                    <div class="cal-day active">
+                        <span class="cal-date">Today</span>
+                        <div class="cal-dot"></div>
+                    </div>
+                    <div class="cal-day">
+                        <span class="cal-date">Tue</span>
+                        <div class="cal-dot"></div>
+                    </div>
+                    <div class="cal-day">
+                        <span class="cal-date">Wed</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 6: Upload Queue -->
+        <section class="panel panel-queue animate-delay-9" id="queuePanel">
+            <div class="panel-glass"></div>
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span class="panel-icon">📤</span>
+                    <h2>Upload Queue</h2>
+                </div>
+                <div class="upload-stats">
+                    <span id="uploadsToday" class="text-glow">1</span>/<span id="dailyLimit">3</span> today
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="queue-card">
+                    <div class="queue-status-dot pulse"></div>
+                    <div class="queue-info">
+                        <strong>Evening_frequency.mp4</strong>
+                        <small>Scheduled: 18:00 EST</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- Feature 3: Global Command Terminal -->
+    <div class="global-terminal">
+        <span class="terminal-prompt">&gt;</span>
+        <input type="text" id="terminalInput" class="terminal-input" placeholder="Type /help for system commands...">
+    </div>
+
+    <!-- Mouse Cursor Glow (Optional Premium JS effect target) -->
+    <div id="cursorGlow"></div>
+
+    <!-- Caption Generator Modal -->
+    <div class="modal-overlay modal-hidden" id="captionModal">
+        <div class="modal volumetric-glass">
+            <div class="modal-header">
+                <h3 class="modal-title-glow">✍️ Generate Caption</h3>
+                <button class="modal-close hover-glow" onclick="closeCaptionModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <select id="captionType" class="form-select" title="Caption type">
+                    <option value="general">Healing Frequency</option>
+                    <option value="cover">Didgeridoo Cover</option>
+                    <option value="reaction">Reaction / Duet</option>
+                    <option value="tutorial">Breath Tutorial</option>
+                    <option value="asmr">Earth ASMR</option>
+                    <option value="street_performance">Live Performance</option>
+                </select>
+                <button class="btn-action w-full mt-4 glow" onclick="generateCaption()">Synthesize Payload 🎯</button>
+                <div class="generated-caption" id="generatedCaption"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="main.js"></script>
+</body>
+</html>

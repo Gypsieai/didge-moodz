@@ -1,0 +1,61 @@
+# ═══════════════════════════════════════════════════════════
+# DIDGERI-BOOM — Docker Compose
+# Single command deployment: docker compose up -d
+# ═══════════════════════════════════════════════════════════
+
+services:
+  didgeri-boom:
+    build: .
+    container_name: didgeri-boom
+    restart: unless-stopped
+    ports:
+      - "${SERVER_PORT:-8000}:8000"
+    volumes:
+      # Persist data across restarts
+      - ./data:/app/data
+      # Mount raw videos from host for processing
+      - ./raw_videos:/app/data/raw_videos
+      # Templates (intro/outro clips)
+      - ./templates:/app/templates
+    env_file:
+      - .env
+    environment:
+      - SERVER_HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; r = httpx.get('http://localhost:8000/api/health'); exit(0 if r.status_code == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "com.apex.project=didgeri-boom"
+      - "com.apex.client=warren-moodie"
+
+# ── Multi-Client Example ────────────────────────────────────
+# Uncomment to run multiple client instances side by side:
+#
+#  chef-boom:
+#    build: ../CHEFMARCO_BOOM
+#    container_name: chef-boom
+#    restart: unless-stopped
+#    ports:
+#      - "8001:8001"
+#    volumes:
+#      - ../CHEFMARCO_BOOM/data:/app/data
+#    env_file:
+#      - ../CHEFMARCO_BOOM/.env
+#    environment:
+#      - SERVER_HOST=0.0.0.0
+#
+#  fit-boom:
+#    build: ../FITJESS_BOOM
+#    container_name: fit-boom
+#    restart: unless-stopped
+#    ports:
+#      - "8002:8002"
+#    volumes:
+#      - ../FITJESS_BOOM/data:/app/data
+#    env_file:
+#      - ../FITJESS_BOOM/.env
+#    environment:
+#      - SERVER_HOST=0.0.0.0

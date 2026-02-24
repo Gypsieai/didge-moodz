@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APEX DIAGNOSTICS v1.0</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --orange:     #ff6a00;
+      --orange-dim: rgba(255,106,0,0.25);
+      --orange-glow:rgba(255,106,0,0.08);
+      --green:      #00ff88;
+      --red:        #ff3b3b;
+      --yellow:     #ffd600;
+      --bg:         #0a0a0f;
+      --surface:    rgba(255,255,255,0.05);
+      --border:     rgba(255,106,0,0.2);
+      --text:       #e0e0e0;
+      --muted:      #666;
+      --mono:       'Courier New', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem 1rem 2rem;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(255,106,0,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(0,100,255,0.04) 0%, transparent 60%);
+    }
+
+    /* ── Header ───────────────────────────────────────────── */
+    .header {
+      width: 100%;
+      max-width: 900px;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      letter-spacing: 0.3rem;
+      color: var(--orange);
+      text-shadow: 0 0 30px rgba(255,106,0,0.5);
+    }
+
+    .header .sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.2rem;
+      margin-top: 0.3rem;
+    }
+
+    .header .badge {
+      display: inline-block;
+      margin-top: 0.5rem;
+      padding: 0.2rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.65rem;
+      color: var(--orange);
+      letter-spacing: 0.1rem;
+    }
+
+    /* ── Layout ───────────────────────────────────────────── */
+    .main {
+      width: 100%;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .main { grid-template-columns: 1fr; }
+      .header h1 { font-size: 1.4rem; }
+    }
+
+    /* ── Panel ────────────────────────────────────────────── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .panel.full { grid-column: 1 / -1; }
+
+    .panel-title {
+      font-size: 0.7rem;
+      letter-spacing: 0.15rem;
+      color: var(--orange);
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+      border-bottom: 1px solid var(--orange-dim);
+      padding-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .panel-title .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--orange);
+      animation: blink 1.5s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.2; }
+    }
+
+    /* ── Control Buttons ──────────────────────────────────── */
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .btn {
+      background: var(--orange-glow);
+      border: 1px solid var(--orange-dim);
+      color: var(--orange);
+      padding: 0.7rem 0.5rem;
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.05rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,106,0,0.15), transparent);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .btn:hover { border-color: var(--orange); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,106,0,0.2); }
+    .btn:hover::before { opacity: 1; }
+    .btn:active { transform: translateY(0); }
+
+    .btn.danger  { border-color: rgba(255,59,59,0.4); color: var(--red); background: rgba(255,59,59,0.06); }
+    .btn.success { border-color: rgba(0,255,136,0.4); color: var(--green); background: rgba(0,255,136,0.06); }
+    .btn.full-w  { grid-column: 1 / -1; }
+
+    /* ── Status Bar ───────────────────────────────────────── */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0.8rem;
+      background: rgba(0,0,0,0.3);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      margin-bottom: 0.8rem;
+      font-size: 0.75rem;
+    }
+
+    .status-led {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+
+    .status-led.idle    { background: var(--muted); }
+    .status-led.running { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); animation: blink 0.5s infinite; }
+    .status-led.ok      { background: var(--green);  box-shadow: 0 0 8px var(--green); }
+    .status-led.error   { background: var(--red);    box-shadow: 0 0 8px var(--red); }
+
+    #statusText { flex: 1; color: var(--text); }
+
+    /* ── Diagnostic Results ───────────────────────────────── */
+    .check-list { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.4rem 0.6rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 4px;
+      font-size: 0.72rem;
+      border: 1px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .check-item.pass  { border-color: rgba(0,255,136,0.2); }
+    .check-item.fail  { border-color: rgba(255,59,59,0.2); }
+    .check-item.warn  { border-color: rgba(255,214,0,0.2); }
+    .check-item.pend  { border-color: rgba(255,255,255,0.05); }
+
+    .check-icon { font-size: 0.8rem; width: 16px; text-align: center; }
+    .check-name { flex: 1; color: var(--muted); }
+    .check-item.pass .check-name { color: var(--text); }
+    .check-item.fail .check-name { color: var(--red); }
+    .check-item.warn .check-name { color: var(--yellow); }
+    .check-val  { font-size: 0.65rem; color: var(--muted); text-align: right; }
+    .check-item.pass .check-val { color: var(--green); }
+    .check-item.fail .check-val { color: var(--red); }
+    .check-item.warn .check-val { color: var(--yellow); }
+
+    /* ── Terminal Log ─────────────────────────────────────── */
+    .log {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px;
+      padding: 0.6rem 0.8rem;
+      height: 180px;
+      overflow-y: auto;
+      font-size: 0.7rem;
+      line-height: 1.6;
+      scrollbar-width: thin;
+      scrollbar-color: var(--orange-dim) transparent;
+    }
+
+    .log::-webkit-scrollbar { width: 4px; }
+    .log::-webkit-scrollbar-thumb { background: var(--orange-dim); border-radius: 2px; }
+
+    .log-line { display: block; }
+    .log-line.info  { color: #aaa; }
+    .log-line.ok    { color: var(--green); }
+    .log-line.err   { color: var(--red); }
+    .log-line.warn  { color: var(--yellow); }
+    .log-line.sys   { color: var(--orange); }
+
+    /* ── Score Meter ──────────────────────────────────────── */
+    .score-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .score-ring {
+      position: relative;
+      width: 100px;
+      height: 100px;
+    }
+
+    .score-ring svg { transform: rotate(-90deg); }
+
+    .score-ring circle {
+      fill: none;
+      stroke-width: 8;
+    }
+
+    .ring-bg   { stroke: rgba(255,255,255,0.05); }
+    .ring-fill {
+      stroke: var(--orange);
+      stroke-linecap: round;
+      stroke-dasharray: 283;
+      stroke-dashoffset: 283;
+      transition: stroke-dashoffset 1s ease, stroke 0.5s;
+      filter: drop-shadow(0 0 4px var(--orange));
+    }
+
+    .score-num {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--orange);
+    }
+
+    .score-label { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1rem; text-transform: uppercase; }
+    .score-grade { font-size: 1rem; font-weight: 900; letter-spacing: 0.1rem; }
+
+    /* ── System Info ──────────────────────────────────────── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+    }
+
+    .info-item {
+      background: rgba(0,0,0,0.2);
+      border-radius: 4px;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.65rem;
+    }
+
+    .info-key { color: var(--muted); margin-bottom: 0.1rem; }
+    .info-val { color: var(--text); font-size: 0.75rem; }
+
+    /* ── Progress Bar ─────────────────────────────────────── */
+    .progress-wrap { margin-top: 0.5rem; }
+    .progress-label { font-size: 0.65rem; color: var(--muted); margin-bottom: 0.3rem; display: flex; justify-content: space-between; }
+    .progress-bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--orange), #ff9500); border-radius: 2px; width: 0%; transition: width 0.4s ease; }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    .footer {
+      margin-top: 1.2rem;
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: 0.1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <h1>⬡ APEX DIAGNOSTICS</h1>
+    <div class="sub">SYSTEM HEALTH MONITOR — PORTABLE EDITION</div>
+    <div class="badge" id="versionBadge">v1.0 · OFFLINE READY</div>
+  </div>
+
+  <div class="main">
+
+    <!-- Controls -->
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span> Control Panel</div>
+      <div class="status-bar">
+        <div class="status-led idle" id="statusLed"></div>
+        <span id="statusText">System idle — ready to scan</span>
+      </div>
+      <div class="btn-grid">
+        <button class="btn full-w" id="runBtn" onclick="runFullDiagnostic()">▶ RUN FULL DIAGNOSTIC</button>
+        <button class="btn" id="quickBtn" onclick="runQuickCheck()">⚡ QUICK CHECK</button>
+        <button class="btn" id="netBtn" onclick="runNetworkCheck()">📡 NETWORK</button>
+        <button class="btn" id="storBtn" onclick="runStorageCheck()">💾 STORAGE</button>
+        <button class="btn" id="perfBtn" onclick="runPerfCheck()">📊 PERFORMANCE</button>
+        <button class="btn danger" id="resetBtn" onclick="resetAll()">↺ RESET</button>
+      </div>
+      <div class="progress-wrap" id="progressWrap" style="display:none">
+        <div class="progress-label"><span id="progressLabel">Scanning...</span><span id="progressPct">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </div>
+
+    <!-- Score -->
+    <div class="panel" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.8rem;">
+      <div class="panel-title"><span class="dot"></span> Health Score</div>
+      <div class="score-wrap">
+        <div class="score-ring">
+          <svg viewBox="0 0 100 100" width="100" height="100">
+            <circle class="ring-bg" cx="50" cy="50" r="45"/>
+            <circle class="ring-fill" id="ringFill" cx="50" cy="50" r="45"/>
+          </svg>
+          <div class="score-num" id="scoreNum">--</div>
+        </div>
+        <div class="score-label">Overall Health</div>
+        <div class="score-grade" id="scoreGrade" style="color:var(--muted)">AWAITING SCAN</div>
+      </div>
+      <div class="info-grid" style="width:100%">
+        <div class="info-item"><div class="info-key">Checks Run</div><div class="info-val" id="infoChecks">0</div></div>
+        <div class="info-item"><div class="info-key">Passed</div><div class="info-val" id="infoPassed" style="color:var(--green)">0</div></div>
+        <div class="info-item"><div class="info-key">Warnings</div><div class="info-val" id="infoWarns" style="color:var(--yellow)">0</div></div>
+        <div class="info-item"><div class="info-key">Failed</div><div class="info-val" id="infoFailed" style="color:var(--red)">0</div></div>
+      </div>
+    </div>
+
+    <!-- Diagnostic Results -->
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span> Diagnostic Results</div>
+      <div class="check-list" id="checkList">
+        <div class="check-item pend">
+          <span class="check-icon">○</span>
+          <span class="check-name">Awaiting scan...</span>
+          <span class="check-val">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Info -->
+    <div class="panel">
+      <div class="panel-title"><span class="dot"></span> System Info</div>
+      <div class="info-grid" id="sysInfo">
+        <div class="info-item"><div class="info-key">Browser</div><div class="info-val" id="siBrowser">—</div></div>
+        <div class="info-item"><div class="info-key">Platform</div><div class="info-val" id="siPlatform">—</div></div>
+        <div class="info-item"><div class="info-key">Language</div><div class="info-val" id="siLang">—</div></div>
+        <div class="info-item"><div class="info-key">Cores</div><div class="info-val" id="siCores">—</div></div>
+        <div class="info-item"><div class="info-key">Screen</div><div class="info-val" id="siScreen">—</div></div>
+        <div class="info-item"><div class="info-key">Online</div><div class="info-val" id="siOnline">—</div></div>
+        <div class="info-item"><div class="info-key">Memory</div><div class="info-val" id="siMemory">—</div></div>
+        <div class="info-item"><div class="info-key">Touch</div><div class="info-val" id="siTouch">—</div></div>
+      </div>
+    </div>
+
+    <!-- Terminal Log -->
+    <div class="panel full">
+      <div class="panel-title"><span class="dot"></span> Terminal Log</div>
+      <div class="log" id="termLog"></div>
+    </div>
+
+  </div>
+
+  <div class="footer">APEX DIAGNOSTICS v1.0 · PORTABLE · NO INSTALL REQUIRED · OPEN index.html IN ANY BROWSER</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────
+let results = [];
+let running = false;
+
+// ── Utility ────────────────────────────────────────────────
+function ts() {
+  return new Date().toLocaleTimeString('en-AU', { hour12: false });
+}
+
+function log(msg, type = 'info') {
+  const el = document.getElementById('termLog');
+  const line = document.createElement('span');
+  line.className = `log-line ${type}`;
+  const prefix = { info: '  ', ok: '✓ ', err: '✗ ', warn: '⚠ ', sys: '» ' };
+  line.textContent = `[${ts()}] ${prefix[type] || '  '}${msg}\n`;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function setStatus(msg, state = 'idle') {
+  document.getElementById('statusText').textContent = msg;
+  const led = document.getElementById('statusLed');
+  led.className = `status-led ${state}`;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── System Info ────────────────────────────────────────────
+function populateSysInfo() {
+  const nav = navigator;
+  const ua = nav.userAgent;
+  let browser = 'Unknown';
+  if (ua.includes('Edg'))    browser = 'Edge';
+  else if (ua.includes('Chrome'))  browser = 'Chrome';
+  else if (ua.includes('Firefox')) browser = 'Firefox';
+  else if (ua.includes('Safari'))  browser = 'Safari';
+
+  document.getElementById('siBrowser').textContent  = browser;
+  document.getElementById('siPlatform').textContent = nav.platform || '—';
+  document.getElementById('siLang').textContent     = nav.language || '—';
+  document.getElementById('siCores').textContent    = nav.hardwareConcurrency || '—';
+  document.getElementById('siScreen').textContent   = `${screen.width}×${screen.height}`;
+  document.getElementById('siOnline').textContent   = nav.onLine ? '✓ Yes' : '✗ No';
+  document.getElementById('siMemory').textContent   = nav.deviceMemory ? `${nav.deviceMemory} GB` : '—';
+  document.getElementById('siTouch').textContent    = ('ontouchstart' in window) ? '✓ Yes' : 'No';
+}
+
+// ── Progress ───────────────────────────────────────────────
+function showProgress(label, pct) {
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('progressLabel').textContent = label;
+  document.getElementById('progressPct').textContent = `${Math.round(pct)}%`;
+  document.getElementById('progressFill').style.width = `${pct}%`;
+}
+
+function hideProgress() {
+  document.getElementById('progressWrap').style.display = 'none';
+}
+
+// ── Check Renderer ─────────────────────────────────────────
+function renderChecks(checks) {
+  const list = document.getElementById('checkList');
+  list.innerHTML = '';
+  checks.forEach(c => {
+    const item = document.createElement('div');
+    item.className = `check-item ${c.status}`;
+    const icons = { pass: '✓', fail: '✗', warn: '⚠', pend: '○' };
+    item.innerHTML = `
+      <span class="check-icon">${icons[c.status] || '○'}</span>
+      <span class="check-name">${c.name}</span>
+      <span class="check-val">${c.value || '—'}</span>`;
+    list.appendChild(item);
+  });
+}
+
+// ── Score ──────────────────────────────────────────────────
+function updateScore(checks) {
+  const total   = checks.length;
+  const passed  = checks.filter(c => c.status === 'pass').length;
+  const warned  = checks.filter(c => c.status === 'warn').length;
+  const failed  = checks.filter(c => c.status === 'fail').length;
+  const score   = total ? Math.round(((passed + warned * 0.5) / total) * 100) : 0;
+
+  document.getElementById('infoChecks').textContent = total;
+  document.getElementById('infoPassed').textContent = passed;
+  document.getElementById('infoWarns').textContent  = warned;
+  document.getElementById('infoFailed').textContent = failed;
+  document.getElementById('scoreNum').textContent   = score;
+
+  // Ring
+  const circumference = 283;
+  const offset = circumference - (score / 100) * circumference;
+  const ring = document.getElementById('ringFill');
+  ring.style.strokeDashoffset = offset;
+  ring.style.stroke = score >= 80 ? 'var(--green)' : score >= 50 ? 'var(--yellow)' : 'var(--red)';
+
+  // Grade
+  const gradeEl = document.getElementById('scoreGrade');
+  if (score >= 90)      { gradeEl.textContent = 'EXCELLENT'; gradeEl.style.color = 'var(--green)'; }
+  else if (score >= 75) { gradeEl.textContent = 'GOOD';      gradeEl.style.color = 'var(--green)'; }
+  else if (score >= 50) { gradeEl.textContent = 'FAIR';      gradeEl.style.color = 'var(--yellow)'; }
+  else if (score >= 25) { gradeEl.textContent = 'POOR';      gradeEl.style.color = 'var(--red)'; }
+  else                  { gradeEl.textContent = 'CRITICAL';  gradeEl.style.color = 'var(--red)'; }
+}
+
+// ── Individual Checks ──────────────────────────────────────
+async function checkBrowser() {
+  const ua = navigator.userAgent;
+  const modern = ('fetch' in window && 'Promise' in window && 'localStorage' in window);
+  return { name: 'Browser Compatibility', status: modern ? 'pass' : 'warn', value: modern ? 'Modern' : 'Limited' };
+}
+
+async function checkOnline() {
+  return { name: 'Network Connection', status: navigator.onLine ? 'pass' : 'warn', value: navigator.onLine ? 'Online' : 'Offline' };
+}
+
+async function checkCookies() {
+  return { name: 'Cookies Enabled', status: navigator.cookieEnabled ? 'pass' : 'warn', value: navigator.cookieEnabled ? 'Enabled' : 'Disabled' };
+}
+
+async function checkLocalStorage() {
+  try {
+    localStorage.setItem('_apex_test', '1');
+    localStorage.removeItem('_apex_test');
+    return { name: 'Local Storage', status: 'pass', value: 'Available' };
+  } catch {
+    return { name: 'Local Storage', status: 'fail', value: 'Blocked' };
+  }
+}
+
+async function checkSessionStorage() {
+  try {
+    sessionStorage.setItem('_apex_test', '1');
+    sessionStorage.removeItem('_apex_test');
+    return { name: 'Session Storage', status: 'pass', value: 'Available' };
+  } catch {
+    return { name: 'Session Storage', status: 'fail', value: 'Blocked' };
+  }
+}
+
+async function checkCores() {
+  const cores = navigator.hardwareConcurrency || 0;
+  return { name: 'CPU Cores', status: cores >= 4 ? 'pass' : cores >= 2 ? 'warn' : 'fail', value: `${cores} cores` };
+}
+
+async function checkMemory() {
+  const mem = navigator.deviceMemory;
+  if (!mem) return { name: 'Device Memory', status: 'warn', value: 'Unknown' };
+  return { name: 'Device Memory', status: mem >= 4 ? 'pass' : mem >= 2 ? 'warn' : 'fail', value: `${mem} GB` };
+}
+
+async function checkScreen() {
+  const w = screen.width, h = screen.height;
+  const ok = w >= 1024;
+  return { name: 'Screen Resolution', status: ok ? 'pass' : 'warn', value: `${w}×${h}` };
+}
+
+async function checkWebGL() {
+  try {
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    return { name: 'WebGL Support', status: gl ? 'pass' : 'warn', value: gl ? 'Supported' : 'Not available' };
+  } catch {
+    return { name: 'WebGL Support', status: 'warn', value: 'Error' };
+  }
+}
+
+async function checkServiceWorker() {
+  const sup = 'serviceWorker' in navigator;
+  return { name: 'Service Worker', status: sup ? 'pass' : 'warn', value: sup ? 'Supported' : 'Not supported' };
+}
+
+async function checkIndexedDB() {
+  const sup = 'indexedDB' in window;
+  return { name: 'IndexedDB', status: sup ? 'pass' : 'warn', value: sup ? 'Available' : 'Not available' };
+}
+
+async function checkTouch() {
+  const touch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  return { name: 'Touch Input', status: 'pass', value: touch ? 'Supported' : 'Mouse only' };
+}
+
+async function checkGeolocation() {
+  const sup = 'geolocation' in navigator;
+  return { name: 'Geolocation API', status: sup ? 'pass' : 'warn', value: sup ? 'Available' : 'Not available' };
+}
+
+async function checkNotifications() {
+  const sup = 'Notification' in window;
+  const perm = sup ? Notification.permission : 'N/A';
+  return { name: 'Notifications', status: sup ? 'pass' : 'warn', value: perm };
+}
+
+async function checkClipboard() {
+  const sup = 'clipboard' in navigator;
+  return { name: 'Clipboard API', status: sup ? 'pass' : 'warn', value: sup ? 'Available' : 'Not available' };
+}
+
+async function checkCanvas() {
+  try {
+    const c = document.createElement('canvas');
+    const ctx = c.getContext('2d');
+    ctx.fillText('test', 0, 0);
+    return { name: 'Canvas 2D', status: 'pass', value: 'Supported' };
+  } catch {
+    return { name: 'Canvas 2D', status: 'fail', value: 'Not supported' };
+  }
+}
+
+async function checkFetch() {
+  const sup = 'fetch' in window;
+  return { name: 'Fetch API', status: sup ? 'pass' : 'fail', value: sup ? 'Available' : 'Not available' };
+}
+
+async function checkWebSockets() {
+  const sup = 'WebSocket' in window;
+  return { name: 'WebSockets', status: sup ? 'pass' : 'warn', value: sup ? 'Supported' : 'Not supported' };
+}
+
+async function checkLatency() {
+  if (!navigator.onLine) return { name: 'Network Latency', status: 'warn', value: 'Offline' };
+  const start = performance.now();
+  try {
+    await fetch('https://www.google.com/favicon.ico', { mode: 'no-cors', cache: 'no-store' });
+    const ms = Math.round(performance.now() - start);
+    return { name: 'Network Latency', status: ms < 100 ? 'pass' : ms < 300 ? 'warn' : 'fail', value: `${ms}ms` };
+  } catch {
+    return { name: 'Network Latency', status: 'warn', value: 'Blocked/CORS' };
+  }
+}
+
+async function checkPerformanceTiming() {
+  const sup = 'performance' in window && 'now' in performance;
+  return { name: 'Performance API', status: sup ? 'pass' : 'warn', value: sup ? 'Available' : 'Not available' };
+}
+
+// ── Check Sets ─────────────────────────────────────────────
+const ALL_CHECKS = [
+  checkBrowser, checkOnline, checkCookies, checkLocalStorage, checkSessionStorage,
+  checkCores, checkMemory, checkScreen, checkWebGL, checkServiceWorker,
+  checkIndexedDB, checkTouch, checkGeolocation, checkNotifications, checkClipboard,
+  checkCanvas, checkFetch, checkWebSockets, checkLatency, checkPerformanceTiming
+];
+
+const QUICK_CHECKS   = [checkBrowser, checkOnline, checkLocalStorage, checkCores, checkMemory];
+const NETWORK_CHECKS = [checkOnline, checkLatency, checkFetch, checkWebSockets, checkGeolocation];
+const STORAGE_CHECKS = [checkLocalStorage, checkSessionStorage, checkIndexedDB, checkCookies];
+const PERF_CHECKS    = [checkCores, checkMemory, checkScreen, checkWebGL, checkCanvas, checkPerformanceTiming];
+
+// ── Run Engine ─────────────────────────────────────────────
+async function runChecks(checks, label) {
+  if (running) return;
+  running = true;
+  results = [];
+  setStatus(`Running ${label}...`, 'running');
+  log(`Starting ${label}`, 'sys');
+  renderChecks([{ name: 'Scanning...', status: 'pend', value: '' }]);
+
+  for (let i = 0; i < checks.length; i++) {
+    const pct = ((i + 1) / checks.length) * 100;
+    showProgress(`Checking ${i + 1} of ${checks.length}...`, pct);
+    const result = await checks[i]();
+    results.push(result);
+    renderChecks(results);
+    updateScore(results);
+    const icon = result.status === 'pass' ? 'ok' : result.status === 'fail' ? 'err' : 'warn';
+    log(`${result.name}: ${result.value}`, icon);
+    await sleep(120);
+  }
+
+  hideProgress();
+  const passed = results.filter(r => r.status === 'pass').length;
+  const failed = results.filter(r => r.status === 'fail').length;
+  const warned = results.filter(r => r.status === 'warn').length;
+  log(`${label} complete — ${passed} passed, ${warned} warnings, ${failed} failed`, 'sys');
+  setStatus(`${label} complete`, failed > 0 ? 'error' : 'ok');
+  running = false;
+}
+
+// ── Public Actions ─────────────────────────────────────────
+function runFullDiagnostic() { runChecks(ALL_CHECKS,     'Full Diagnostic'); }
+function runQuickCheck()     { runChecks(QUICK_CHECKS,   'Quick Check'); }
+function runNetworkCheck()   { runChecks(NETWORK_CHECKS, 'Network Check'); }
+function runStorageCheck()   { runChecks(STORAGE_CHECKS, 'Storage Check'); }
+function runPerfCheck()      { runChecks(PERF_CHECKS,    'Performance Check'); }
+
+function resetAll() {
+  if (running) return;
+  results = [];
+  document.getElementById('checkList').innerHTML = '<div class="check-item pend"><span class="check-icon">○</span><span class="check-name">Awaiting scan...</span><span class="check-val">—</span></div>';
+  document.getElementById('termLog').innerHTML = '';
+  document.getElementById('scoreNum').textContent = '--';
+  document.getElementById('scoreGrade').textContent = 'AWAITING SCAN';
+  document.getElementById('scoreGrade').style.color = 'var(--muted)';
+  document.getElementById('ringFill').style.strokeDashoffset = 283;
+  document.getElementById('ringFill').style.stroke = 'var(--orange)';
+  ['infoChecks','infoPassed','infoWarns','infoFailed'].forEach(id => document.getElementById(id).textContent = '0');
+  hideProgress();
+  setStatus('System idle — ready to scan', 'idle');
+  log('System reset', 'sys');
+}
+
+// ── Init ───────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  populateSysInfo();
+  log('APEX DIAGNOSTICS v1.0 initialised', 'sys');
+  log('Portable mode — no install required', 'info');
+  log('Press RUN FULL DIAGNOSTIC to begin', 'info');
+  document.getElementById('versionBadge').textContent =
+    `v1.0 · ${new Date().toLocaleDateString('en-AU')} · OFFLINE READY`;
+});
+</script>
+</body>
+</html>
