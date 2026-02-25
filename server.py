@@ -281,6 +281,23 @@ async def generate_caption(request: Request):
     return JSONResponse(content=result)
 
 
+# ── Settings ─────────────────────────────────────────────────────
+
+# In-memory key store (persists for session lifetime on Render)
+_runtime_settings: dict = {}
+
+@app.post("/api/settings")
+async def save_settings(request: Request):
+    """Accept API keys from the dashboard settings modal."""
+    body = await request.json()
+    if body.get("tiktok_token"):
+        _runtime_settings["tiktok_token"] = body["tiktok_token"]
+    if body.get("gemini_api_key"):
+        _runtime_settings["gemini_api_key"] = body["gemini_api_key"]
+    return JSONResponse(content={"status": "saved", "keys": list(_runtime_settings.keys())})
+
+
+
 # ── OAuth Callback ──────────────────────────────────────────────
 
 @app.get("/auth/tiktok")

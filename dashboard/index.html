@@ -51,8 +51,32 @@
             <div class="status-chip" data-status="info">
                 <span id="currentTime"></span>
             </div>
+            <button id="btnSettings" onclick="openSettingsModal()" title="Settings" style="background:transparent; border:1px solid rgba(176,38,255,0.4); color:var(--text-muted); cursor:pointer; border-radius:8px; padding:6px 10px; font-size:1rem; transition:all 0.2s;" onmouseover="this.style.color='#fff';this.style.borderColor='var(--primary)'" onmouseout="this.style.color='';this.style.borderColor='rgba(176,38,255,0.4)'">⚙️</button>
         </div>
     </header>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal-hidden" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);">
+        <div style="background:#0d0d14;border:1px solid rgba(176,38,255,0.5);border-radius:16px;padding:32px;width:480px;max-width:95vw;box-shadow:0 0 60px rgba(176,38,255,0.2);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+                <h2 style="font-size:1.2rem;color:#fff;margin:0;">⚙️ API Settings</h2>
+                <button onclick="closeSettingsModal()" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:1.4rem;line-height:1;">×</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px;">
+                <div>
+                    <label style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:6px;letter-spacing:0.05em;">TIKTOK ACCESS TOKEN</label>
+                    <input id="inputTikTokKey" type="password" placeholder="Paste your TikTok access token…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(176,38,255,0.3);border-radius:8px;padding:10px 14px;color:#fff;font-family:JetBrains Mono,monospace;font-size:0.85rem;outline:none;">
+                </div>
+                <div>
+                    <label style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:6px;letter-spacing:0.05em;">GEMINI API KEY</label>
+                    <input id="inputGeminiKey" type="password" placeholder="Paste your Gemini API key…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);border:1px solid rgba(176,38,255,0.3);border-radius:8px;padding:10px 14px;color:#fff;font-family:JetBrains Mono,monospace;font-size:0.85rem;outline:none;">
+                </div>
+                <button onclick="saveSettings()" style="margin-top:8px;padding:12px;background:linear-gradient(135deg,#6600cc,#b026ff);border:none;border-radius:8px;color:#fff;font-weight:700;font-size:0.95rem;cursor:pointer;letter-spacing:0.05em;">💾 SAVE KEYS</button>
+                <p id="settingsSaveMsg" style="text-align:center;font-size:0.8rem;color:var(--success);display:none;">Keys saved ✓</p>
+            </div>
+        </div>
+    </div>
+
 
     <!--   Main Dashboard Grid (Expanded) -->
     <main class="dashboard-grid expanded-grid">

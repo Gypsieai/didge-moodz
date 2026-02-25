@@ -497,6 +497,59 @@ window.closeModal = function(id) {
     if(m) m.classList.add('modal-hidden');
 };
 
+// ── Settings Modal ────────────────────────────────────────────
+window.openSettingsModal = function() {
+    const modal = document.getElementById('settingsModal');
+    if (!modal) return;
+    // Pre-fill with saved keys (masked)
+    const tikTokKey = localStorage.getItem('dm_tiktok_key') || '';
+    const geminiKey = localStorage.getItem('dm_gemini_key') || '';
+    const tikTokInput = document.getElementById('inputTikTokKey');
+    const geminiInput = document.getElementById('inputGeminiKey');
+    if (tikTokInput) tikTokInput.value = tikTokKey;
+    if (geminiInput) geminiInput.value = geminiKey;
+    modal.classList.remove('modal-hidden');
+};
+
+window.closeSettingsModal = function() {
+    const modal = document.getElementById('settingsModal');
+    if (modal) modal.classList.add('modal-hidden');
+    const msg = document.getElementById('settingsSaveMsg');
+    if (msg) msg.style.display = 'none';
+};
+
+window.saveSettings = async function() {
+    const tikTokKey = document.getElementById('inputTikTokKey')?.value?.trim() || '';
+    const geminiKey = document.getElementById('inputGeminiKey')?.value?.trim() || '';
+
+    // Save to localStorage for UI persistence
+    if (tikTokKey) localStorage.setItem('dm_tiktok_key', tikTokKey);
+    if (geminiKey) localStorage.setItem('dm_gemini_key', geminiKey);
+
+    // Send to backend so it can use them at runtime
+    await apiFetch('/api/settings', {
+        method: 'POST',
+        body: JSON.stringify({ tiktok_token: tikTokKey, gemini_api_key: geminiKey }),
+    });
+
+    const msg = document.getElementById('settingsSaveMsg');
+    if (msg) {
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 2500);
+    }
+};
+
+// Close modal when clicking backdrop
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('settingsModal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeSettingsModal();
+        });
+    }
+});
+
+
 function formatNumber(n) {
     if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
     if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
