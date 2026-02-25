@@ -3,10 +3,16 @@ DIDGERI-BOOM Hashtag & Caption Generator
 AI-powered hashtag strategy and engaging caption generation.
 """
 
-import random
+import asyncio
+import json
+import re
 from datetime import datetime
 
 from config import CORE_HASHTAGS, VIRAL_HASHTAGS
+from google.adk.runners import InMemoryRunner
+
+# Assuming the agents package is importable from where this runs
+import agents.viral_content_agent.agent as viral_agent
 
 
 class HashtagGenerator:
@@ -41,72 +47,69 @@ class HashtagGenerator:
         result = list(tags)[:max_tags]
         return result
 
-    def generate_caption(
-        self,
-        content_type: str = "general",
-        trend_name: str = "",
-        include_cta: bool = True,
-    ) -> str:
-        """Generate an engaging caption for a TikTok video."""
-        templates = {
-            "cover": [
-                f"Didgeridoo cover of '{trend_name}' 🎵🔥 Did NOT expect this to work so well!",
-                f"Playing '{trend_name}' on the didgeridoo and it SLAPS 💥",
-                f"When the didgeridoo meets '{trend_name}' 🤯 This combo is insane",
-                f"'{trend_name}' but make it didgeridoo 🎶 Turn your volume UP 🔊",
-            ],
-            "reaction": [
-                "Wait for the didgeridoo drop 🔥 This is what 20 years of practice sounds like",
-                "People didn't expect THIS when I pulled out the didgeridoo 😱",
-                "The look on their faces when the drone hit 💀🎵",
-            ],
-            "tutorial": [
-                "How to play didgeridoo in 60 seconds ⏰ Save this!",
-                "Secret technique that took me years to learn 🤫 #tutorial",
-                "You've been breathing wrong this whole time 🫁 Circular breathing explained",
-            ],
-            "mashup": [
-                f"Didgeridoo × '{trend_name}' mashup you didn't know you needed 🎧",
-                "Ancient instrument meets modern beats 🌍🎶 The result is INSANE",
-                "This mashup broke my brain 🤯 Didgeridoo bass hits different",
-            ],
-            "asmr": [
-                "Close your eyes and let the drone take you somewhere 🌙✨ #ASMR",
-                "The most relaxing didgeridoo session you'll hear today 😴🎵",
-                "Pure didgeridoo ASMR — this is what peace sounds like 🕊️",
-            ],
-            "street_performance": [
-                "Their reactions when they hear the didgeridoo for the first time 😂🔥",
-                "Busking with a didgeridoo — people literally stopped in their tracks 👀",
-                "Street music that makes people forget where they're going 🎶",
-            ],
-            "challenge": [
-                f"Can I play '{trend_name}' on a DIDGERIDOO? Challenge accepted 💪",
-                "They said it couldn't be done on a didgeridoo. Watch this 😤🔥",
-            ],
-            "general": [
-                "This sound is 40,000 years old and it still goes HARD 🔥",
-                "POV: You discover the didgeridoo isn't just a tube 🤯",
-                "The world's oldest instrument and it still slaps harder than anything 🎵💥",
-                "One breath, one drone, infinite vibes 🌊🎶",
-                "They weren't ready for this 😮‍💨🔥",
-            ],
+        return result
+
+    def _parse_agent_response(self, text: str) -> dict:
+        """Extracts JSON from the agent's response text."""
+        try:
+            # Try to find a JSON block if the agent wrapped it in markdown
+            match = re.search(r"```(?:json)?\s*(.*?)\s*```", text, re.DOTALL)
+            if match:
+                return json.loads(match.group(1))
+            return json.loads(text)
+        except json.JSONDecodeError:
+            # Fallback if no valid JSON is returned
+            return {
+                "caption": "Check out this new didgeridoo video! 🔥🎵",
+                "hashtags": "#didgeridoo #music #live",
+            }
+
+    async def _async_generate_full_post(self, content_type: str, trend_name: str, trend_tags: list[str]) -> dict:
+        runner = InMemoryRunner(agent=viral_agent.root_agent, app_name="didge_moodz")
+        
+        # We use a static system user for automation
+        session = await runner.session_service.create_session(
+            app_name="didge_moodz", user_id="system"
+        )
+        
+        prompt = (
+            f"Please generate a TikTok caption and hashtags for a new video.\n"
+            f"Content Type: {content_type}\n"
+        )
+        if trend_name:
+            prompt += f"Related Trend: {trend_name}\n"
+        if trend_tags:
+            prompt += f"Suggested Trend Tags: {', '.join(trend_tags)}\n"
+
+        # The runner returns an async generator for live streaming, 
+        # or we can collect events. 
+        # But `run` or `run_async` API might be slightly different.
+        # Let's collect the final text response.
+        final_text = ""
+        async for event in runner.run_async(session.id, prompt):
+            if event.type == "model_response" and event.data.text:
+                final_text += event.data.text
+
+        agent_output = final_text.strip()
+        parsed_data = self._parse_agent_response(agent_output)
+        
+        caption = parsed_data.get("caption", "Incredible didgeridoo vibes 🦘🔥")
+        hashtags_str = parsed_data.get("hashtags", "")
+        # Get baseline hashtags as fallback/addition
+        baseline_hashtags = self.generate_hashtags(trend_tags)
+        
+        if not hashtags_str:
+            hashtags_str = " ".join(baseline_hashtags)
+            
+        full_text = f"{caption}\n\n{hashtags_str}"
+        
+        return {
+            "caption": caption,
+            "hashtags": hashtags_str.split(),
+            "full_text": full_text,
+            "content_type": content_type,
+            "generated_at": datetime.now().isoformat(),
         }
-
-        options = templates.get(content_type, templates["general"])
-        caption = random.choice(options)
-
-        if include_cta:
-            ctas = [
-                "\n\nFollow for more didgeridoo magic ✨",
-                "\n\n🔔 Follow to never miss a session!",
-                "\n\nDrop a 🔥 if you felt that!",
-                "\n\nShare this with someone who needs to hear this 🎶",
-                "\n\nWho should I collab with next? 👇",
-            ]
-            caption += random.choice(ctas)
-
-        return caption
 
     def generate_full_post(
         self,
@@ -115,13 +118,7 @@ class HashtagGenerator:
         trend_tags: list[str] = None,
     ) -> dict:
         """Generate a complete post package: caption + hashtags."""
-        caption = self.generate_caption(content_type, trend_name)
-        hashtags = self.generate_hashtags(trend_tags)
+        return asyncio.run(
+            self._async_generate_full_post(content_type, trend_name, trend_tags)
+        )
 
-        return {
-            "caption": caption,
-            "hashtags": hashtags,
-            "full_text": f"{caption}\n\n{' '.join(hashtags)}",
-            "content_type": content_type,
-            "generated_at": datetime.now().isoformat(),
-        }

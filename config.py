@@ -24,8 +24,8 @@ for d in [RAW_VIDEO_DIR, PROCESSED_VIDEO_DIR, UPLOAD_QUEUE_DIR, DATA_DIR, TEMPLA
     d.mkdir(parents=True, exist_ok=True)
 
 # ── TikTok API ───────────────────────────────────────────────────
-TIKTOK_CLIENT_KEY = os.getenv("TIKTOK_CLIENT_KEY", "")
-TIKTOK_CLIENT_SECRET = os.getenv("TIKTOK_CLIENT_SECRET", "")
+TIKTOK_CLIENT_KEY = os.getenv("aw76pf8hw18oivwi", "")
+TIKTOK_CLIENT_SECRET = os.getenv("Afp18QfzD9wEkH25s8Saq2pVfZ24RXIB", "")
 TIKTOK_ACCESS_TOKEN = os.getenv("TIKTOK_ACCESS_TOKEN", "")
 TIKTOK_REFRESH_TOKEN = os.getenv("TIKTOK_REFRESH_TOKEN", "")
 TIKTOK_API_BASE = "https://open.tiktokapis.com/v2"
@@ -47,7 +47,7 @@ MAX_FILE_SIZE_MB = 287  # TikTok max
 SUPPORTED_INPUT_FORMATS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
 
 # ── Whisper (Captions) ──────────────────────────────────────────
-WHISPER_MODEL = os.getenv("WHISPER_MODEL", "base")
+WHISPER_MODEL = os.getenv("WHISPER_MODEL", "tiny")
 
 # ── Scheduling ──────────────────────────────────────────────────
 MAX_DAILY_POSTS = int(os.getenv("MAX_DAILY_POSTS", "3"))

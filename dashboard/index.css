@@ -5,27 +5,29 @@
 
 /* ── Design Tokens ────────────────────────────────────────── */
 :root {
-    /* Dark Neon Purple Palette */
+    /* Earth Neon Purple Palette */
     --amber:        #8B00FF;      /* Neon Purple */
-    --amber-glow:   #B026FF;      /* Bright Purple Glow */
-    --amber-dim:    #4B0082;      /* Indigo/Deep Purple */
+    --amber-glow:   #D926FF;      /* Electric Magenta/Bright Purple Glow */
+    --amber-dim:    #5C0099;      /* Deep Vibrant Purple */
     --ochre:        #9400D3;      /* Dark Violet */
-    --saddle:       #2A004D;      /* Very Dark Purple */
-    --rust:         #6600CC;      /* Mid Purple */
-    --earth-dark:   #05000A;      /* Near Black Purple */
-    --earth-mid:    #110022;      
-    --earth-light:  #220044;      
+    --saddle:       #3A1F40;      /* Earthy Dark Purple/Brown */
+    --rust:         #7A336C;      /* Muted Mauve/Rust */
+    --earth-dark:   #1A1110;      /* Very Dark Warm Earth */
+    --earth-mid:    #2D1E2F;      /* Muddy Dark Purple/Brown */
+    --earth-light:  #4A3545;      /* Lighter Earthy Plum */
+    --terracotta:   #CC5500;      /* Earthy Accent */
+    --moss:         #4A5D23;      /* Earthy Accent */
 
     /* Neutrals */
-    --bg-deep:      #050508;
-    --bg-surface:   #0A0A12;
-    --bg-glass:     rgba(17, 0, 34, 0.45); 
-    --bg-glass-heavy: rgba(10, 0, 20, 0.75);
+    --bg-deep:      #0F0A0E;      /* Earth-tinted deep background */
+    --bg-surface:   #1A121A;      /* Slightly lighter earth surface */
+    --bg-glass:     rgba(45, 30, 47, 0.55);   /* Earth-mid glass */
+    --bg-glass-heavy: rgba(26, 17, 16, 0.85); /* Earth-dark heavy glass */
     
     /* Borders & Glows */
-    --border:       rgba(139, 0, 255, 0.2); 
-    --border-glow:  rgba(176, 38, 255, 0.5);
-    --border-active: rgba(176, 38, 255, 0.8);
+    --border:       rgba(217, 38, 255, 0.2); 
+    --border-glow:  rgba(217, 38, 255, 0.6);
+    --border-active: rgba(217, 38, 255, 0.9);
 
     /* Text */
     --text-primary:    #FFFFFF;
@@ -99,9 +101,9 @@ body::before {
     position: fixed;
     inset: 0;
     background:
-        radial-gradient(ellipse at 10% 10%, rgba(139, 0, 255, 0.08) 0%, transparent 40%),
-        radial-gradient(ellipse at 90% 90%, rgba(0, 204, 255, 0.05) 0%, transparent 40%),
-        radial-gradient(circle at 50% 50%, rgba(5, 5, 8, 0.95) 0%, var(--bg-deep) 100%);
+        radial-gradient(ellipse at 10% 10%, rgba(217, 38, 255, 0.1) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 90%, rgba(204, 85, 0, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(26, 17, 16, 0.95) 0%, var(--bg-deep) 100%);
     pointer-events: none;
     z-index: -1;
 }
@@ -151,8 +153,8 @@ body::before {
     z-index: -1;
     opacity: 0.02;
     background-image:
-        linear-gradient(rgba(176, 38, 255, 0.5) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(176, 38, 255, 0.5) 1px, transparent 1px);
+        linear-gradient(rgba(204, 85, 0, 0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(204, 85, 0, 0.15) 1px, transparent 1px);
     background-size: 60px 60px;
     perspective: 1000px;
     transform: rotateX(60deg) scale(2.5) translateY(-20%);
@@ -210,16 +212,16 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--amber-glow), var(--saddle));
+    background: linear-gradient(135deg, var(--amber-glow), var(--terracotta));
     border-radius: var(--radius-md);
-    box-shadow: 0 0 20px rgba(176, 38, 255, 0.4);
+    box-shadow: 0 0 20px rgba(217, 38, 255, 0.5);
     border: 1px solid rgba(255,255,255,0.1);
     animation: logoPulsePremium 4s ease-in-out infinite;
 }
 
 @keyframes logoPulsePremium {
-    0%, 100% { box-shadow: 0 0 15px rgba(176, 38, 255, 0.3), inset 0 0 10px rgba(255,255,255,0.1); }
-    50% { box-shadow: 0 0 35px rgba(176, 38, 255, 0.7), inset 0 0 20px rgba(255,255,255,0.3); }
+    0%, 100% { box-shadow: 0 0 15px rgba(217, 38, 255, 0.4), inset 0 0 10px rgba(255,255,255,0.1); }
+    50% { box-shadow: 0 0 35px rgba(217, 38, 255, 0.8), inset 0 0 20px rgba(255,255,255,0.3); }
 }
 
 .system-title {
@@ -231,7 +233,7 @@ body::before {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 0 30px rgba(176, 38, 255, 0.4);
+    text-shadow: 0 0 30px rgba(217, 38, 255, 0.5);
 }
 
 .system-subtitle {
@@ -295,7 +297,7 @@ body::before {
     box-shadow: 0 0 10px var(--success);
     animation: pulsePremium 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
-.pulse-dot.green { background: #00FFCC; box-shadow: 0 0 10px #00FFCC; }
+.pulse-dot.green { background: var(--moss); box-shadow: 0 0 10px var(--moss); }
 .pulse-dot.amber { background: var(--amber-glow); box-shadow: 0 0 10px var(--amber-glow); }
 
 @keyframes pulsePremium {
@@ -410,9 +412,9 @@ body::before {
 }
 
 .panel:hover .panel-glass {
-    background: rgba(26, 0, 51, 0.6);
+    background: rgba(74, 53, 69, 0.65); /* Earth light */
     border-color: var(--border-glow);
-    box-shadow: var(--shadow-deep), 0 0 40px rgba(176, 38, 255, 0.15), inset 0 0 30px rgba(176, 38, 255, 0.05);
+    box-shadow: var(--shadow-deep), 0 0 40px rgba(217, 38, 255, 0.2), inset 0 0 30px rgba(217, 38, 255, 0.08);
 }
 
 .panel-header {
@@ -489,7 +491,7 @@ button {
 .btn-action:hover {
     background: linear-gradient(135deg, var(--amber-dim), var(--amber));
     border-color: var(--amber-glow);
-    box-shadow: 0 0 20px rgba(176, 38, 255, 0.4);
+    box-shadow: 0 0 20px rgba(217, 38, 255, 0.4);
     transform: translateY(-2px);
 }
 .btn-action:hover::before { left: 200%; }
@@ -498,8 +500,8 @@ button {
     animation: buttonGlow 3s infinite alternate;
 }
 @keyframes buttonGlow {
-    from { box-shadow: 0 0 10px rgba(176, 38, 255, 0.2); }
-    to { box-shadow: 0 0 25px rgba(176, 38, 255, 0.6); }
+    from { box-shadow: 0 0 10px rgba(217, 38, 255, 0.2); }
+    to { box-shadow: 0 0 25px rgba(217, 38, 255, 0.6); }
 }
 
 .btn-secondary {
@@ -543,7 +545,7 @@ button {
 .form-input:focus, .form-select:focus {
     outline: none;
     border-color: var(--amber-glow);
-    box-shadow: 0 0 15px rgba(176, 38, 255, 0.2);
+    box-shadow: 0 0 15px rgba(217, 38, 255, 0.2);
 }
 .form-input::placeholder { color: var(--text-muted); }
 
@@ -662,7 +664,7 @@ button {
     font-size: 2rem;
     font-weight: 900;
     color: #fff;
-    text-shadow: 0 0 20px rgba(176, 38, 255, 0.4);
+    text-shadow: 0 0 20px rgba(217, 38, 255, 0.4);
 }
 .stat-label {
     font-size: 0.75rem;
@@ -761,14 +763,14 @@ button {
     background: rgba(10, 10, 15, 0.85);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(139, 0, 255, 0.3);
+    border: 1px solid rgba(217, 38, 255, 0.3);
     border-radius: 100px;
     padding: 12px 24px;
     display: flex;
     align-items: center;
     gap: 12px;
     z-index: 1000;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(139, 0, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(217, 38, 255, 0.2);
 }
 .terminal-prompt {
     color: var(--success);
@@ -788,8 +790,8 @@ button {
 
 /* ── Utilities & Modals (Preserved structure, updated aesthetics) ── */
 .badge {
-    background: rgba(176, 38, 255, 0.2);
-    border: 1px solid rgba(176, 38, 255, 0.5);
+    background: rgba(217, 38, 255, 0.2);
+    border: 1px solid rgba(217, 38, 255, 0.5);
     padding: 4px 8px;
     border-radius: 4px;
     font-size: 0.6rem;
