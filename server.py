@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request, UploadFile, File
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, FileResponse
 import uvicorn
 
 from config import (
@@ -57,10 +57,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Serve dashboard static files
 dashboard_dir = Path(__file__).parent / "dashboard"
-if dashboard_dir.exists():
-    app.mount("/static", StaticFiles(directory=str(dashboard_dir)), name="static")
+
+@app.get("/index.css")
+async def serve_css():
+    return FileResponse(dashboard_dir / "index.css")
+
+@app.get("/main.js")
+async def serve_js():
+    return FileResponse(dashboard_dir / "main.js")
 
 
 # ── Dashboard Route ─────────────────────────────────────────────
