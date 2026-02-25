@@ -1,0 +1,19 @@
+# DIDGERI-BOOM — Render Production Dependencies
+# Lightweight server-only requirements for cloud deployment
+# Heavy ML/video deps (faster-whisper, google-adk) excluded to keep build fast
+
+# Core Server
+fastapi>=0.115.0
+uvicorn[standard]>=0.34.0
+python-dotenv>=1.0.0
+pydantic>=2.10.0
+
+# HTTP Client (TikTok API)
+httpx>=0.28.0
+
+# Scheduling
+apscheduler>=3.10.0
+
+# File helpers
+aiofiles>=24.1.0
+watchdog>=6.0.0
