@@ -35,6 +35,8 @@ APIFY_API_TOKEN = os.getenv("APIFY_API_TOKEN", "")
 APIFY_TRENDING_SOUNDS_ACTOR = "clockworks/tiktok-trending-sounds-scraper"
 APIFY_TRENDING_HASHTAGS_ACTOR = "clockworks/tiktok-trending-hashtags"
 
+FIRECRAWL_API_KEY = os.getenv("FIRECRAWL_API_KEY", "")
+
 # ── Video Settings ───────────────────────────────────────────────
 VIDEO_WIDTH = 1080
 VIDEO_HEIGHT = 1920

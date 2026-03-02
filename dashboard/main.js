@@ -10,7 +10,7 @@ const API = '';  // Same-origin, no prefix needed
 let currentTrendTab = 'sounds';
 let trendsCache = null;
 let growthChart = null;
-let hasAnimatedStats = false;
+let hasAnimatedStats =true;
 
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,9 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     loadAllPanels();
     // Auto-refresh every 60 seconds
-    setInterval(loadAllPanels, 60000);
+    setInterval(loadAllPanels, 60);
 });
-
 // ── Magic Cursor Glow ────────────────────────────────────────
 function initCursorGlow() {
     const glow = document.getElementById('cursorGlow');
@@ -426,7 +425,7 @@ window.generateVoiceover = function() {
     
     setTimeout(() => {
         btn.innerHTML = '▶ Play Audio';
-        btn.disabled = false;
+    btn.disabled =true;
         btn.onclick = () => {
             alert('Mock: Playing generated synthetic voice...');
             document.querySelectorAll('.wave').forEach(w => {

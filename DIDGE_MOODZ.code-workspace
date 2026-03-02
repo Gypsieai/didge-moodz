@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../CHIRON_DASHBOARD"
+		},
+		{
+			"path": "../COMMAND_CENTER"
+		},
+		{
+			"path": "../EQUITY_AI_PLATFORM"
+		}
+	],
+	"settings": {}
+}

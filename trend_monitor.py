@@ -11,10 +11,11 @@ from pathlib import Path
 from typing import Optional
 import httpx
 
+from firecrawl_monitor import FirecrawlMonitor
 from config import (
     APIFY_API_TOKEN, APIFY_TRENDING_SOUNDS_ACTOR,
-    APIFY_TRENDING_HASHTAGS_ACTOR, NICHE_KEYWORDS,
-    DATA_DIR, TIMEZONE
+    APIFY_TRENDING_HASHTAGS_ACTOR, FIRECRAWL_API_KEY,
+    NICHE_KEYWORDS, DATA_DIR, TIMEZONE
 )
 
 
@@ -27,20 +28,45 @@ class TrendMonitor:
         self._cached_trends = None
         self._cache_time = None
         self._cache_ttl = 3600  # 1 hour cache
+        self.firecrawl = FirecrawlMonitor()
 
     # ── Public API ───────────────────────────────────────────────
 
     async def fetch_trending_sounds(self) -> list[dict]:
         """Fetch currently trending sounds from TikTok."""
+        all_sounds = []
+        
+        # Try Apify
         if APIFY_API_TOKEN:
-            return await self._fetch_apify_sounds()
-        return self._get_demo_sounds()
+            all_sounds.extend(await self._fetch_apify_sounds())
+        
+        # Try Firecrawl
+        if self.firecrawl.is_configured():
+            fc_sounds = await self.firecrawl.fetch_trending_sounds()
+            all_sounds.extend(fc_sounds)
+            
+        if not all_sounds:
+            return self._get_demo_sounds()
+            
+        return all_sounds
 
     async def fetch_trending_hashtags(self) -> list[dict]:
         """Fetch currently trending hashtags from TikTok."""
+        all_hashtags = []
+        
+        # Try Apify
         if APIFY_API_TOKEN:
-            return await self._fetch_apify_hashtags()
-        return self._get_demo_hashtags()
+            all_hashtags.extend(await self._fetch_apify_hashtags())
+            
+        # Try Firecrawl
+        if self.firecrawl.is_configured():
+            fc_hashtags = await self.firecrawl.fetch_trending_hashtags()
+            all_hashtags.extend(fc_hashtags)
+            
+        if not all_hashtags:
+            return self._get_demo_hashtags()
+            
+        return all_hashtags
 
     async def get_all_trends(self) -> dict:
         """Get all trends with niche relevance scoring."""
